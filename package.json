@@ -9,20 +9,29 @@
     "lint:ts": "tsc --noEmit",
     "lint:es": "eslint --ext \".ts\" --ignore-path .gitignore .",
     "fix": "yarn lint:es --fix",
-    "bundle": "esbuild src/index.ts --bundle --minify --outfile=out.js --platform=node",
+    "bundle": "esbuild src/index.ts --bundle --outfile=out.js --platform=node",
     "start": "node out.js",
-    "dev": "yarn lint:ts && yarn bundle && yarn start"
+    "dev": "yarn bundle && yarn start"
   },
-  "dependencies": {},
+  "dependencies": {
+    "d3": "^7.3.0",
+    "date-fns": "^2.28.0",
+    "dotenv": "^11.0.0"
+  },
   "devDependencies": {
+    "@types/d3": "^7.1.0",
+    "@types/node": "^17.0.8",
+    "@types/node-cron": "^3.0.1",
     "@typescript-eslint/eslint-plugin": "^5.9.1",
     "@typescript-eslint/parser": "^5.9.1",
+    "bybit-api": "^2.1.8",
     "esbuild": "^0.14.11",
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.2.0",
+    "node-cron": "^3.0.0",
     "typescript": "^4.5.4"
   }
 }
