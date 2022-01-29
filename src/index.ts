@@ -33,26 +33,30 @@ const f = async () => {
     from: getUnixTime(sub(new Date(), { minutes: 200 }))
   })).result
 
-  const rsiList = getRSI(kline.map(line => line.close), 14)
+  const rsi = latestRSI(kline, 14)
   const HIGH_RSI_BORDER = 70
   const LOW_RSI_BORDER = 30
-
-  const prevTime = formatISO(secondsToDate(kline[kline.length - rsiList.length + rsiList.length - 2].open_time))
-  const curTime = formatISO(secondsToDate(kline[kline.length - rsiList.length + rsiList.length - 1].open_time))
-  const prevRSI = rsiList[rsiList.length - 2]
-  console.log({ prev: { time: prevTime, rsi: prevRSI } })
-  const currentRSI = rsiList[rsiList.length - 1]
-  console.log({ current: { time: curTime, rsi: currentRSI } })
-  if (prevRSI > HIGH_RSI_BORDER && currentRSI <= HIGH_RSI_BORDER) {
+  if (rsi.prev > HIGH_RSI_BORDER && rsi.cur <= HIGH_RSI_BORDER) {
     console.log('RSIが下がっています')
   }
-  if (prevRSI < LOW_RSI_BORDER && currentRSI >= LOW_RSI_BORDER) {
+  if (rsi.prev < LOW_RSI_BORDER && rsi.cur >= LOW_RSI_BORDER) {
     console.log('RSIが上がっています')
   }
 }
 
-const secondsToDate = (seconds: number) => {
-  return toDate(secondsToMilliseconds(seconds))
+const latestRSI = (kline: KLine[], interval: number): { prev: number, cur: number } => {
+  const rsiList = getRSI(kline.map(line => line.close), interval)
+
+  const time = (index: number) =>
+    formatISO(toDate(secondsToMilliseconds(kline[kline.length - rsiList.length + rsiList.length + index].open_time)))
+
+  const prevRSI = rsiList[rsiList.length - 2]
+  const currentRSI = rsiList[rsiList.length - 1]
+
+  console.log({ pre: { time: time(-2), rsi: prevRSI } })
+  console.log({ cur: { time: time(-1), rsi: currentRSI } })
+
+  return { prev: prevRSI, cur: currentRSI }
 }
 
 cron.schedule('* * * * *', () => {
