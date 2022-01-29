@@ -56,3 +56,41 @@ export const getRSI = (values: number[], interval: number): number[] => {
 // ]
 // const rsi = getRSI(values, 14)
 // assert([65], rsi)
+
+export const getEMA = (values: number[], interval: number): number[] => {
+  const pastValues = values.slice(0, interval)
+  const currentValues = values.slice(interval)
+
+  // 平滑化定数
+  const alpha = 2 / (interval + 1)
+  const firstEMA = pastValues.reduce((pre, cur) => pre + cur) / pastValues.length
+  let prevEMA = firstEMA
+  const emaList = currentValues.map(value => {
+    const currentEMA = prevEMA + alpha * (value - prevEMA)
+    prevEMA = currentEMA
+    return currentEMA
+  })
+  return emaList
+}
+
+// TODO: jestで実行する
+// const values = [
+//   1, 10, 100, 1000, 10000, 5000, 500
+// ]
+// const ema = getEMA(values, 3)
+
+export const getMACD = (values: number[], interval: { short: number, long: number, signal: number }): { macd: number, signal: number, histgram: number }[] => {
+  const shortEMA = getEMA(values, interval.short)
+  const longEMA = getEMA(values, interval.long)
+  const macd = shortEMA.slice(-longEMA.length).map((short, idx) => short - longEMA[idx])
+  const signal = getEMA(macd, interval.signal)
+  const histgram = macd.slice(-signal.length).map((macd, idx) => macd - signal[idx])
+  // histgramの長さが一番短くなるのでhistgramでループを回す
+  return histgram.map((histgram, idx) => {
+    return {
+      macd: macd[idx],
+      signal: signal[idx],
+      histgram
+    }
+  })
+}

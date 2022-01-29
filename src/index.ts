@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 import { LinearClient } from 'bybit-api'
 import { KLine } from './api'
 import { sub, getUnixTime, toDate, secondsToMilliseconds, formatISO } from 'date-fns'
-import { getRSI } from './technicalIndex'
+import { getMACD, getRSI } from './technicalIndex'
 import cron from 'node-cron'
 
 const env = (() => {
@@ -42,6 +42,14 @@ const f = async () => {
   if (rsi.prev < LOW_RSI_BORDER && rsi.cur >= LOW_RSI_BORDER) {
     console.log('RSIが上がっています')
   }
+
+  const macd = latestMACD(kline, { short: 12, long: 26, signal: 9 })
+  if (macd.prev.histgram < 0 && macd.cur.histgram > 0) {
+    console.log('ゴールデンクロス発生')
+  }
+  if (macd.prev.histgram > 0 && macd.cur.histgram < 0) {
+    console.log('デッドクロス発生')
+  }
 }
 
 const latestRSI = (kline: KLine[], interval: number): { prev: number, cur: number } => {
@@ -57,6 +65,21 @@ const latestRSI = (kline: KLine[], interval: number): { prev: number, cur: numbe
   console.log({ cur: { time: time(-1), rsi: currentRSI } })
 
   return { prev: prevRSI, cur: currentRSI }
+}
+
+const latestMACD = (kline: KLine[], interval: { short: number, long: number, signal: number }) => {
+  const macd = getMACD(kline.map(line => line.close), interval)
+
+  const time = (index: number) =>
+    formatISO(toDate(secondsToMilliseconds(kline[kline.length - macd.length + macd.length + index].open_time)))
+
+  const prev = macd[macd.length - 2]
+  const cur = macd[macd.length - 1]
+
+  console.log({ pre: { time: time(-2), macd: prev } })
+  console.log({ cur: { time: time(-1), macd: cur } })
+
+  return { prev, cur }
 }
 
 cron.schedule('* * * * *', () => {
