@@ -14,6 +14,30 @@ const env = (() => {
   }
 })()
 
+interface Flags {
+  rsi: boolean,
+  macd: boolean,
+  bb: boolean
+}
+
+const createFlags = (): Flags => {
+  return {
+    rsi: false,
+    macd: false,
+    bb: false
+  }
+}
+
+const shouldBuy = (flags: Flags): boolean => {
+  const bit = Object.values(flags) as boolean[]
+  return bit.filter(b => b).length >= 2
+}
+
+const shouldSell = (flags: Flags): boolean => {
+  const bit = Object.values(flags) as boolean[]
+  return bit.filter(b => b).length >= 2
+}
+
 export async function main () {
   await f()
 }
@@ -33,79 +57,89 @@ const f = async () => {
     from: getUnixTime(sub(new Date(), { minutes: 200 }))
   })).result
 
+  const buyFlags = createFlags()
+  const sellFlags = createFlags()
+
   const rsi = latestRSI(kline, 14)
-  const HIGH_RSI_BORDER = 70
-  const LOW_RSI_BORDER = 30
-  if (rsi.prev > HIGH_RSI_BORDER && rsi.cur <= HIGH_RSI_BORDER) {
-    console.log('RSIが下がっています')
-  }
-  if (rsi.prev < LOW_RSI_BORDER && rsi.cur >= LOW_RSI_BORDER) {
-    console.log('RSIが上がっています')
-  }
-
   const macd = latestMACD(kline, { short: 12, long: 26, signal: 9 })
-  if (macd.prev.histgram < 0 && macd.cur.histgram > 0) {
-    console.log('ゴールデンクロス発生')
-  }
-  if (macd.prev.histgram > 0 && macd.cur.histgram < 0) {
-    console.log('デッドクロス発生')
-  }
-
   const bb = latestBB(kline, 20, 2)
-  if (bb.cur.top < bb.cur.value) {
-    console.log('上部BBを上回っています')
+
+  console.log({
+    prev: {
+      time: rsi.prev.time,
+      close: rsi.prev.kline.close,
+      rsi: rsi.prev.value,
+      macd: macd.prev.value.signal,
+      bb: { top: bb.prev.value.top, bottom: bb.prev.value.bottom }
+    },
+    cur: {
+      time: rsi.cur.time,
+      close: rsi.cur.kline.close,
+      rsi: rsi.cur.value,
+      macd: macd.cur.value.signal,
+      bb: { top: bb.cur.value.top, bottom: bb.cur.value.bottom }
+    }
+  })
+
+  const LOW_RSI_BORDER = 30
+  const HIGH_RSI_BORDER = 70
+  if (rsi.prev.value < LOW_RSI_BORDER && rsi.cur.value >= LOW_RSI_BORDER) {
+    console.log('RSIが上がっています')
+    buyFlags.rsi = true
   }
-  if (bb.cur.bottom > bb.cur.value) {
+  if (rsi.prev.value > HIGH_RSI_BORDER && rsi.cur.value <= HIGH_RSI_BORDER) {
+    console.log('RSIが下がっています')
+    sellFlags.rsi = true
+  }
+
+  if (macd.prev.value.histgram < 0 && macd.cur.value.histgram > 0) {
+    console.log('ゴールデンクロス発生')
+    buyFlags.macd = true
+  }
+  if (macd.prev.value.histgram > 0 && macd.cur.value.histgram < 0) {
+    console.log('デッドクロス発生')
+    sellFlags.macd = true
+  }
+
+  if (bb.cur.value.bottom > bb.cur.kline.close) {
     console.log('下部BBを下回っています')
+    buyFlags.bb = true
+  }
+  if (bb.cur.value.top < bb.cur.kline.close) {
+    console.log('上部BBを上回っています')
+    sellFlags.bb = true
+  }
+
+  if (shouldBuy(buyFlags)) {
+    console.log('>> 買い注文を出します')
+  }
+
+  if (shouldSell(sellFlags)) {
+    console.log('<< 売り注文を出します')
   }
 }
 
-const latestRSI = (kline: KLine[], interval: number): { prev: number, cur: number } => {
-  const rsiList = getRSI(kline.map(line => line.close), interval)
+const latestRSI = (kline: KLine[], interval: number) =>
+  getKlinePairs(kline, (kline) => getRSI(kline.map(line => line.close), interval))
 
-  const time = (index: number) =>
-    formatISO(toDate(secondsToMilliseconds(kline[kline.length - rsiList.length + rsiList.length + index].open_time)))
+const latestMACD = (kline: KLine[], interval: { short: number, long: number, signal: number }) =>
+  getKlinePairs(kline, (kline) => getMACD(kline.map(line => line.close), interval))
 
-  const prevRSI = rsiList[rsiList.length - 2]
-  const currentRSI = rsiList[rsiList.length - 1]
+const latestBB = (kline: KLine[], interval: number, multi: number) =>
+  getKlinePairs(kline, (kline) => getBollingerBand(kline.map(v => v.close), interval, multi))
 
-  console.log({ pre: { time: time(-2), rsi: prevRSI } })
-  console.log({ cur: { time: time(-1), rsi: currentRSI } })
+const getKlinePairs = <T>(kline: KLine[], getTechnicalIndex: (kline: KLine[]) => T[]) => {
+  const ti = getTechnicalIndex(kline)
 
-  return { prev: prevRSI, cur: currentRSI }
-}
-
-const latestMACD = (kline: KLine[], interval: { short: number, long: number, signal: number }) => {
-  const macd = getMACD(kline.map(line => line.close), interval)
-
-  const time = (index: number) =>
-    formatISO(toDate(secondsToMilliseconds(kline[kline.length - macd.length + macd.length + index].open_time)))
-
-  const prev = macd[macd.length - 2]
-  const cur = macd[macd.length - 1]
-
-  console.log({ pre: { time: time(-2), macd: prev } })
-  console.log({ cur: { time: time(-1), macd: cur } })
-
-  return { prev, cur }
-}
-
-const latestBB = (kline: KLine[], interval: number, multi: number) => {
-  const bb = getBollingerBand(kline.map(v => v.close), interval, multi)
-
-  const currentKline = (index: number) => kline[kline.length - bb.length + bb.length + index]
-  const time = (index: number) =>
-    formatISO(toDate(secondsToMilliseconds(currentKline(index).open_time)))
-
-  const prev = bb[bb.length - 2]
-  const cur = bb[bb.length - 1]
-
-  console.log({ pre: { time: time(-2), bb: prev, value: currentKline(-2).close } })
-  console.log({ cur: { time: time(-1), bb: cur, value: currentKline(-1).close } })
+  const result = (index: number) => {
+    const klineOf = (index: number) => kline[kline.length - ti.length + ti.length + index]
+    const timeOf = (index: number) => toDate(secondsToMilliseconds(klineOf(index).open_time))
+    return { time: timeOf(index), value: ti[ti.length + index], kline: klineOf(index) }
+  }
 
   return {
-    prev: { ...prev, value: currentKline(-2).close },
-    cur: { ...prev, value: currentKline(-1).close }
+    prev: result(-2),
+    cur: result(-1)
   }
 }
 
