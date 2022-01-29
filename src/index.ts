@@ -51,8 +51,9 @@ const f = async () => {
   )
 
   // 1分間隔でチャートを取得
+  const SYMBOL = 'BTCUSDT'
   const kline: KLine[] = (await client.getKline({
-    symbol: 'BTCUSDT',
+    symbol: SYMBOL,
     interval: '1',
     from: getUnixTime(sub(new Date(), { minutes: 200 }))
   })).result
@@ -64,6 +65,7 @@ const f = async () => {
   const macd = latestMACD(kline, { short: 12, long: 26, signal: 9 })
   const bb = latestBB(kline, 20, 2)
 
+  const currentKline = rsi.cur.kline
   console.log({
     prev: {
       time: rsi.prev.time,
@@ -112,10 +114,32 @@ const f = async () => {
 
   if (shouldBuy(buyFlags)) {
     console.log('>> 買い注文を出します')
+    const result = await client.placeActiveOrder({
+      side: 'Buy',
+      symbol: SYMBOL,
+      order_type: 'Limit',
+      qty: 0.01,
+      price: currentKline.close,
+      time_in_force: 'GoodTillCancel',
+      reduce_only: false,
+      close_on_trigger: false
+    })
+    console.log(result)
   }
 
   if (shouldSell(sellFlags)) {
     console.log('<< 売り注文を出します')
+    const result = await client.placeActiveOrder({
+      side: 'Sell',
+      symbol: SYMBOL,
+      order_type: 'Limit',
+      qty: 0.01,
+      price: currentKline.close,
+      time_in_force: 'GoodTillCancel',
+      reduce_only: false,
+      close_on_trigger: false
+    })
+    console.log(result)
   }
 }
 
