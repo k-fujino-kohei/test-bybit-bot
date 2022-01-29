@@ -94,3 +94,37 @@ export const getMACD = (values: number[], interval: { short: number, long: numbe
     }
   })
 }
+
+/**
+ * arrayを1要素ずつずらしながらlengthの長さにスライスする
+ * @param length
+ * @param array
+ * @returns
+ */
+const windows = (length: number, array: number[]) =>
+  array.flatMap((_, i) =>
+    i <= array.length - length
+      ? [array.slice(i, i + length)]
+      : [])
+
+/**
+ * 標準偏差
+ * @param values
+ * @returns
+ */
+const getStandardDiviation = (values: number[]) => {
+  const avg = values.reduce((pre, cur) => pre + cur) / values.length
+  const variance = values.map(v => (v - avg) ** 2).reduce((pre, cur) => pre + cur) / values.length
+  return Math.sqrt(variance)
+}
+
+export const getBollingerBand = (values: number[], interval: number, multi: number): { top: number, bottom: number }[] => {
+  const valuesByInterval = windows(interval, values)
+  return valuesByInterval.map(values => {
+    const avg = values.reduce((a, b) => a + b) / values.length
+    const standardDiviation = getStandardDiviation(values)
+    const top = avg + multi * standardDiviation
+    const bottom = avg - multi * standardDiviation
+    return { top, bottom }
+  })
+}

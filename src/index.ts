@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 import { LinearClient } from 'bybit-api'
 import { KLine } from './api'
 import { sub, getUnixTime, toDate, secondsToMilliseconds, formatISO } from 'date-fns'
-import { getMACD, getRSI } from './technicalIndex'
+import { getBollingerBand, getMACD, getRSI } from './technicalIndex'
 import cron from 'node-cron'
 
 const env = (() => {
@@ -50,6 +50,14 @@ const f = async () => {
   if (macd.prev.histgram > 0 && macd.cur.histgram < 0) {
     console.log('デッドクロス発生')
   }
+
+  const bb = latestBB(kline, 20, 2)
+  if (bb.cur.top < bb.cur.value) {
+    console.log('上部BBを上回っています')
+  }
+  if (bb.cur.bottom > bb.cur.value) {
+    console.log('下部BBを下回っています')
+  }
 }
 
 const latestRSI = (kline: KLine[], interval: number): { prev: number, cur: number } => {
@@ -80,6 +88,25 @@ const latestMACD = (kline: KLine[], interval: { short: number, long: number, sig
   console.log({ cur: { time: time(-1), macd: cur } })
 
   return { prev, cur }
+}
+
+const latestBB = (kline: KLine[], interval: number, multi: number) => {
+  const bb = getBollingerBand(kline.map(v => v.close), interval, multi)
+
+  const currentKline = (index: number) => kline[kline.length - bb.length + bb.length + index]
+  const time = (index: number) =>
+    formatISO(toDate(secondsToMilliseconds(currentKline(index).open_time)))
+
+  const prev = bb[bb.length - 2]
+  const cur = bb[bb.length - 1]
+
+  console.log({ pre: { time: time(-2), bb: prev, value: currentKline(-2).close } })
+  console.log({ cur: { time: time(-1), bb: cur, value: currentKline(-1).close } })
+
+  return {
+    prev: { ...prev, value: currentKline(-2).close },
+    cur: { ...prev, value: currentKline(-1).close }
+  }
 }
 
 cron.schedule('* * * * *', () => {
