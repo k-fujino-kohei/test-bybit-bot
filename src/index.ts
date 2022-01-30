@@ -39,10 +39,6 @@ const shouldSell = (flags: Flags): boolean => {
 }
 
 export async function main () {
-  await f()
-}
-
-const f = async () => {
   const useLiveNet = false
   const client = new LinearClient(
     env.API_KEY,
@@ -52,54 +48,55 @@ const f = async () => {
 
   // 1分間隔でチャートを取得
   const SYMBOL = 'BTCUSDT'
-  const kline: KLine[] = (await client.getKline({
+  const resp = await client.getKline({
     symbol: SYMBOL,
     interval: '1',
     from: getUnixTime(sub(new Date(), { minutes: 200 }))
-  })).result
+  })
+  const kline: KLine[] = resp.result
 
   const buyFlags = createFlags()
   const sellFlags = createFlags()
 
-  const rsi = latestRSI(kline, 14)
-  const macd = latestMACD(kline, { short: 12, long: 26, signal: 9 })
-  const bb = latestBB(kline, 20, 2)
+  const rsi = latestRSI(kline, 14, 2)
+  const macd = latestMACD(kline, { short: 12, long: 26, signal: 9 }, 2)
+  const bb = latestBB(kline, 20, { multi: 2 })
 
   const currentKline = rsi.cur.kline
-  console.log({
-    prev: {
-      time: rsi.prev.time,
-      close: rsi.prev.kline.close,
-      rsi: rsi.prev.value,
-      macd: macd.prev.value.signal,
-      bb: { top: bb.prev.value.top, bottom: bb.prev.value.bottom }
-    },
-    cur: {
-      time: rsi.cur.time,
-      close: rsi.cur.kline.close,
-      rsi: rsi.cur.value,
-      macd: macd.cur.value.signal,
-      bb: { top: bb.cur.value.top, bottom: bb.cur.value.bottom }
-    }
-  })
+  // console.log({
+  //   prev: {
+  //     time: rsi.prev.time,
+  //     close: rsi.prev.kline.close,
+  //     rsi: rsi.prev.value,
+  //     macd: macd.prev.value.signal,
+  //     bb: { top: bb.prev.value.top, bottom: bb.prev.value.bottom }
+  //   },
+  //   cur: {
+  //     time: rsi.cur.time,
+  //     close: rsi.cur.kline.close,
+  //     rsi: rsi.cur.value,
+  //     macd: macd.cur.value.signal,
+  //     bb: { top: bb.cur.value.top, bottom: bb.cur.value.bottom }
+  //   }
+  // })
 
   const LOW_RSI_BORDER = 30
   const HIGH_RSI_BORDER = 70
   if (rsi.prev.value < LOW_RSI_BORDER && rsi.cur.value >= LOW_RSI_BORDER) {
-    console.log('RSIが上がっています')
+    console.log('↑RSIが上がっています')
     buyFlags.rsi = true
   }
   if (rsi.prev.value > HIGH_RSI_BORDER && rsi.cur.value <= HIGH_RSI_BORDER) {
-    console.log('RSIが下がっています')
+    console.log('↓RSIが下がっています')
     sellFlags.rsi = true
   }
 
   if (macd.prev.value.histgram < 0 && macd.cur.value.histgram > 0) {
-    console.log('ゴールデンクロス発生')
+    console.log('↑ゴールデンクロス発生')
     buyFlags.macd = true
   }
   if (macd.prev.value.histgram > 0 && macd.cur.value.histgram < 0) {
-    console.log('デッドクロス発生')
+    console.log('↓デッドクロス発生')
     sellFlags.macd = true
   }
 
@@ -114,6 +111,7 @@ const f = async () => {
 
   if (shouldBuy(buyFlags)) {
     console.log('>> 買い注文を出します')
+    console.log(buyFlags)
     const result = await client.placeActiveOrder({
       side: 'Buy',
       symbol: SYMBOL,
@@ -129,6 +127,7 @@ const f = async () => {
 
   if (shouldSell(sellFlags)) {
     console.log('<< 売り注文を出します')
+    console.log(sellFlags)
     const result = await client.placeActiveOrder({
       side: 'Sell',
       symbol: SYMBOL,
@@ -143,16 +142,16 @@ const f = async () => {
   }
 }
 
-const latestRSI = (kline: KLine[], interval: number) =>
-  getKlinePairs(kline, (kline) => getRSI(kline.map(line => line.close), interval))
+const latestRSI = (kline: KLine[], interval: number, prev?: number) =>
+  getKlinePairs(kline, (kline) => getRSI(kline.map(line => line.close), interval), prev)
 
-const latestMACD = (kline: KLine[], interval: { short: number, long: number, signal: number }) =>
-  getKlinePairs(kline, (kline) => getMACD(kline.map(line => line.close), interval))
+const latestMACD = (kline: KLine[], interval: { short: number, long: number, signal: number }, prev?: number) =>
+  getKlinePairs(kline, (kline) => getMACD(kline.map(line => line.close), interval), prev)
 
-const latestBB = (kline: KLine[], interval: number, multi: number) =>
-  getKlinePairs(kline, (kline) => getBollingerBand(kline.map(v => v.close), interval, multi))
+const latestBB = (kline: KLine[], interval: number, options: { multi: number }, prev?: number) =>
+  getKlinePairs(kline, (kline) => getBollingerBand(kline.map(v => v.close), interval, options.multi), prev)
 
-const getKlinePairs = <T>(kline: KLine[], getTechnicalIndex: (kline: KLine[]) => T[]) => {
+const getKlinePairs = <T>(kline: KLine[], getTechnicalIndex: (kline: KLine[]) => T[], prev?: number) => {
   const ti = getTechnicalIndex(kline)
 
   const result = (index: number) => {
@@ -162,13 +161,13 @@ const getKlinePairs = <T>(kline: KLine[], getTechnicalIndex: (kline: KLine[]) =>
   }
 
   return {
-    prev: result(-2),
+    prev: result(-1 - (prev ?? 1)),
     cur: result(-1)
   }
 }
 
-cron.schedule('* * * * *', () => {
-  console.log(`start: ${formatISO(new Date())}`)
+cron.schedule('* * * * *', (now) => {
+  console.log(`start: ${formatISO(now)}`)
   main()
     .catch(err => console.error(err))
     .finally(() => console.info('end'))
