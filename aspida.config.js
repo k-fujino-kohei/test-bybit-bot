@@ -1,1 +1,1 @@
-module.exports = { input: 'src/api' }
+module.exports = { input: 'src/infrastructure/api', outputMode: 'aliasOnly' }

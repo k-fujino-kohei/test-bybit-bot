@@ -1,5 +1,3 @@
-export type Symbol = 'BTCUSDT'
-
 export interface BybitResponse<T> {
   retCode: number
   retMsg: string

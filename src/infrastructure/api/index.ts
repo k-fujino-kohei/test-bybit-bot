@@ -1,4 +1,4 @@
-import $api from '@api/$api'
+import $api from '@/infrastructure/api/$api'
 import aspida from '@aspida/axios'
 import axios from 'axios'
 import hmacSHA512 from 'crypto-js/hmac-sha512'
@@ -27,6 +27,7 @@ const api = (config: { key: string, secret: string, useTestnet?: boolean }) => {
   return $api(aspida(axios, axiosConfig))
 }
 
+export type ApiInstance = ReturnType<typeof api>
 export default api
 
 /// https://bybit-exchange.github.io/docs/inverse/#t-constructingtherequest
