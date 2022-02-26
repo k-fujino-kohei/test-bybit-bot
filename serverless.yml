@@ -1,0 +1,34 @@
+service: test-bybit-bot
+
+provider:
+  name: google
+  runtime: nodejs16
+  region: asia-northeast1
+  project: "bybit-bot-339805"
+  credentials: ./service-account.json
+  environment:
+    API_KEY: ${env:API_KEY}
+    API_SECRET: ${env:API_SECRET}
+
+plugins:
+  - serverless-google-cloudfunctions
+
+package:
+  exclude:
+    - .gitignore
+    - node_modules/**
+    - src/**
+    - .eslintrc.json
+    - README.md
+    - service-account.json
+    - tsconfig.json
+    - .env
+    - .editorconfig
+
+functions:
+  autoTrade:
+    handler: autoTrade
+    events:
+      - event:
+          eventType: providers/cloud.pubsub/eventTypes/topic.publish
+          resource: 'projects/${self:provider.project, ""}/topics/autoTradeCall'
