@@ -9,6 +9,6 @@ export interface Methods {
       limit?: number
     }
 
-    resBody: BybitResponse<OpenInterest>
+    resBody: BybitResponse<OpenInterest[]>
   }
 }
