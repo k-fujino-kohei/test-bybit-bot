@@ -45,3 +45,13 @@ export interface MarketDataRepository {
 
   getSymbols(): Promise<Symbol[]>
 }
+
+// Liquidation
+export interface Liquidation {
+  id: number
+  qty: number
+  side: string
+  time: number
+  symbol: string
+  price: number
+}

@@ -1,10 +1,10 @@
 import { BybitResponse } from '@/infrastructure/api/baseResponse'
-import { OpenInterest, OpenInterestPeriod, Symbol } from '@/domains/repository/marketData'
+import { OpenInterest, OpenInterestPeriod, SymbolName } from '@/domains/repository/marketData'
 
 export interface Methods {
   get: {
     query?: {
-      symbol: Symbol
+      symbol: SymbolName
       period: OpenInterestPeriod
       limit?: number
     }
