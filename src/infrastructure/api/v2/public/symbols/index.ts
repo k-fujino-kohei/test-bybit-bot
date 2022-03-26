@@ -1,4 +1,4 @@
-import { Symbol } from '@/domains/repository/marketData'
+import { Symbol } from '@/domains/models'
 import { BybitResponse } from '@/infrastructure/api/baseResponse'
 
 export interface Methods {

@@ -1,4 +1,5 @@
-import { Kline, KlineInterval, SymbolName } from '@/domains/repository/marketData'
+import { KlineInterval, SymbolName } from '@/domains/models'
+import { Kline } from '@/domains/repository/marketData'
 import { BybitResponse } from '@/infrastructure/api/baseResponse'
 
 export interface Methods {

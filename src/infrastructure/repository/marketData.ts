@@ -1,4 +1,6 @@
-import { OpenInterest, MarketDataRepository, SymbolName, OpenInterestPeriod, Kline, KlineInterval, Symbol, Liquidation } from '@/domains/repository/marketData'
+import { KlineInterval, OpenInterestPeriod, SymbolName, Symbol } from '@/domains/models'
+import { OpenInterest, MarketDataRepository, Kline } from '@/domains/repository/marketData'
+
 import { ApiInstance } from '@/infrastructure/api/index'
 
 export class MarketDataAPI implements MarketDataRepository {

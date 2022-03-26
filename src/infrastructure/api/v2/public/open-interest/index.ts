@@ -1,5 +1,6 @@
 import { BybitResponse } from '@/infrastructure/api/baseResponse'
-import { OpenInterest, OpenInterestPeriod, SymbolName } from '@/domains/repository/marketData'
+import { OpenInterest } from '@/domains/repository/marketData'
+import { OpenInterestPeriod, SymbolName } from '@/domains/models'
 
 export interface Methods {
   get: {
