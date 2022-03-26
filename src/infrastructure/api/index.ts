@@ -1,7 +1,7 @@
 import $api from '@/infrastructure/api/$api'
 import aspida from '@aspida/axios'
 import axios from 'axios'
-import hmacSHA512 from 'crypto-js/hmac-sha512'
+import hmacSHA256 from 'crypto-js/hmac-sha256'
 import { toCamel } from 'snake-camel'
 
 const api = (config: { key: string, secret: string, useTestnet?: boolean }) => {
@@ -37,12 +37,13 @@ const setAuth = (requestParams: { [x: string]: any }, config: { key: string, sec
     timestamp: Date.now(),
     ...requestParams ?? {}
   }
-  const sign = hmacSHA512(serializeParams(params), config.secret).toString()
+  const sign = hmacSHA256(serializeParams(params), config.secret).toString()
   return { ...params, sign }
 }
 
 const serializeParams = (params: { [x: string]: any }) => {
   return Object.keys(params)
+    .sort()
     .map(key => {
       const value = params[key]
       return `${key}=${value}`
