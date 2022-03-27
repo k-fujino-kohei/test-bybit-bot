@@ -9,10 +9,10 @@
     "lint:ts": "tsc --noEmit",
     "lint:es": "eslint --ext \".ts\" --ignore-path .gitignore .",
     "fix": "yarn lint:es --fix",
-    "bundle": "aspida && esbuild src/index.ts --bundle --minify --outfile=build/index.js --platform=node",
-    "dev": "yarn bundle && npx functions-framework --source=build/index.js --target=autoTrade --signature-type=event",
+    "bundle": "aspida && esbuild src/index.ts --bundle --outfile=index.js --platform=node --external:mock-aws-s3 --external:nock",
+    "dev": "yarn bundle && npx functions-framework --source=index.js --target=autoTrade --signature-type=event",
     "deploy": "yarn bundle && serverless deploy",
-    "test": "yarn bundle && node build/index.js"
+    "debug": "yarn bundle && node index.js"
   },
   "dependencies": {
     "@aspida/axios": "^1.8.0",

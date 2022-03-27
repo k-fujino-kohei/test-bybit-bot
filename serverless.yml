@@ -1,8 +1,10 @@
 service: test-bybit-bot
 
+useDotenv: true
+
 provider:
   name: google
-  runtime: nodejs16
+  runtime: nodejs14
   region: asia-northeast1
   project: "bybit-bot-339805"
   credentials: ./service-account.json
@@ -15,15 +17,9 @@ plugins:
 
 package:
   exclude:
-    - .gitignore
-    - node_modules/**
-    - src/**
-    - .eslintrc.json
-    - README.md
-    - service-account.json
-    - tsconfig.json
-    - .env
-    - .editorconfig
+    - "**"
+  include:
+    - index.js
 
 functions:
   autoTrade:
