@@ -6,7 +6,7 @@ import { toCamel } from 'snake-camel'
 
 const api = (config: { key: string, secret: string, useTestnet?: boolean }) => {
   const axiosConfig = {
-    baseURL: 'https://api-testnet.bybit.com'
+    baseURL: (config.useTestnet ?? true) ? 'https://api-testnet.bybit.com' : 'https://api.bybit.com'
   }
 
   axios.interceptors.request.use(request => {
