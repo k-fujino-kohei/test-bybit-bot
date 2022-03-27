@@ -31,4 +31,22 @@ export interface AccountDataRepository {
   getPositionList(params: {
     symbol?: SymbolName
   }): Promise<Position[]>
+
+  placeActiveOrder(params: {
+    side: string
+    orderType: string
+    qty: number
+    price?: number
+    timeInForce: string
+    closeOnTrigger: boolean
+    reduceOnly: boolean
+    orderLinkId?: string
+    takeProfit?: number
+    stopLoss?: number
+    tpTriggerBy?: string
+    slTriggerBy?: string
+    positionIdx?: number
+  }): Promise<void>
+
+  setTradingStop(params: { side: Side }): Promise<void>
 }

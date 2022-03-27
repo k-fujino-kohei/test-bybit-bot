@@ -1,6 +1,9 @@
 import { formatISO } from 'date-fns'
-import { trade } from './usecases/simpleTrade'
+import { SimpleTrader } from './usecases/simpleTrader'
 import dotenv from 'dotenv'
+import { MarketDataAPI } from './infrastructure/repository/marketData'
+import api from './infrastructure/api'
+import { AccountDataAPI } from './infrastructure/repository/accountData'
 
 const config = () => {
   const env = (() => {
@@ -16,16 +19,21 @@ const config = () => {
   }
 }
 
-exports.autoTrade = async () => {
+const _autoTrade = async () => {
   console.log(`start: ${formatISO(new Date())}`)
   try {
     const { env } = config()
-    await trade({
-      apiKey: env.API_KEY,
-      apiSecret: env.API_SECRET,
-      useLiveNet: false
-    })
+    const bybitClient = api({ key: env.API_KEY, secret: env.API_SECRET })
+    const symbol = 'BTCUSDT'
+    const marketRepository = new MarketDataAPI(bybitClient, symbol)
+    const accountRepository = new AccountDataAPI(bybitClient, symbol)
+    const trader = new SimpleTrader(marketRepository, accountRepository)
+    await trader.trade()
   } catch (err) {
     console.error(err)
   }
 }
+
+exports.autoTrade = _autoTrade
+
+_autoTrade().then()

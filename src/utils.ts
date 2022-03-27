@@ -1,6 +1,12 @@
 import { sub, getUnixTime, toDate, secondsToMilliseconds, Duration } from 'date-fns'
 
 /**
+ * https://qiita.com/aqua_ix/items/b3a9b920781d833cede8
+ * 一部のプロパティをオプショナルにする
+*/
+export type PartiallyPartial<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+
+/**
  * From timestamp in seconds
  * @returns seconds
  */
