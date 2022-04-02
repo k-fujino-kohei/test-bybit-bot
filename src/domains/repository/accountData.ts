@@ -1,4 +1,4 @@
-import { PositionIdx, Side, SymbolName, TpSlMode } from '../models'
+import { OrderType, PositionIdx, Side, SymbolName, TimeInForce, TpSlMode, TriggerBy } from '../models'
 
 export interface Position {
   userId: number
@@ -34,17 +34,17 @@ export interface AccountDataRepository {
 
   placeActiveOrder(params: {
     side: string
-    orderType: string
+    orderType: OrderType
     qty: number
     price?: number
-    timeInForce: string
+    timeInForce: TimeInForce
     closeOnTrigger: boolean
     reduceOnly: boolean
     orderLinkId?: string
     takeProfit?: number
     stopLoss?: number
-    tpTriggerBy?: string
-    slTriggerBy?: string
+    tpTriggerBy?: TriggerBy
+    slTriggerBy?: TriggerBy
     positionIdx?: number
   }): Promise<void>
 

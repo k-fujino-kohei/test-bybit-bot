@@ -1,7 +1,12 @@
 export type Side = 'Buy' | 'Sell'
 
+/**
+ * - Limit: 指値注文
+ * - Merket: 成行注文
+ */
 export type OrderType = 'Limit' | 'Market'
 
+/** https://help.bybit.com/hc/en-us/articles/360039749233-What-Are-Time-In-Force-TIF-GTC-IOC-FOK- */
 export type TimeInForce =
   'GoodTillCancel'
   | 'ImmediateOrCancel'
@@ -10,6 +15,8 @@ export type TimeInForce =
 
 /** https://bybit-exchange.github.io/docs/linear/#tp-sl-mode-tp_sl_mode */
 export type TpSlMode = 'Full' | 'Partial'
+
+export type TriggerBy = 'LastPrice' | 'IndexPrice' | 'MarkPrice'
 
 /**
  * 0-One-Way Mode
