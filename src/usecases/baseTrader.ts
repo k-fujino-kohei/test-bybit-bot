@@ -10,8 +10,7 @@ interface Order {
 /** 新規注文 */
 export interface NewOrder extends Order {
   type: 'new'
-  price: number
-  qty: number
+  lastPrice: number
 }
 
 /** 決済注文 */
