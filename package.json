@@ -9,7 +9,7 @@
     "lint:ts": "tsc --noEmit",
     "lint:es": "eslint --ext \".ts\" --ignore-path .gitignore .",
     "fix": "yarn lint:es --fix",
-    "bundle": "aspida && esbuild src/index.ts --bundle --outfile=index.js --platform=node --external:mock-aws-s3 --external:nock",
+    "bundle": "aspida && esbuild src/index.ts --bundle --outfile=index.js --minify --platform=node --external:mock-aws-s3 --external:nock",
     "dev": "yarn bundle && npx functions-framework --source=index.js --target=autoTrade --signature-type=event",
     "deploy": "yarn bundle && serverless deploy",
     "debug": "yarn bundle && node index.js"

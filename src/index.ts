@@ -1,4 +1,3 @@
-import { formatISO } from 'date-fns'
 import { SimpleTrader } from './usecases/simpleTrader'
 import dotenv from 'dotenv'
 import { MarketDataAPI } from './infrastructure/repository/marketData'
@@ -20,10 +19,9 @@ const config = () => {
 }
 
 const _autoTrade = async () => {
-  console.log(`start: ${formatISO(new Date())}`)
   try {
     const { env } = config()
-    const bybitClient = api({ key: env.API_KEY, secret: env.API_SECRET })
+    const bybitClient = api({ key: env.API_KEY, secret: env.API_SECRET, useTestnet: true })
     const symbol = 'BTCUSDT'
     const marketRepository = new MarketDataAPI(bybitClient, symbol)
     const accountRepository = new AccountDataAPI(bybitClient, symbol)
@@ -35,5 +33,3 @@ const _autoTrade = async () => {
 }
 
 exports.autoTrade = _autoTrade
-
-_autoTrade().then()
