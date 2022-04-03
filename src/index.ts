@@ -25,7 +25,7 @@ const _autoTrade = async () => {
     const symbol = 'BTCUSDT'
     const marketRepository = new MarketDataAPI(bybitClient, symbol)
     const accountRepository = new AccountDataAPI(bybitClient, symbol)
-    const trader = new SimpleTrader(marketRepository, accountRepository)
+    const trader = new SimpleTrader(marketRepository, accountRepository, () => new Date())
     await trader.trade()
   } catch (err) {
     console.error(err)

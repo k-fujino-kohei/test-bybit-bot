@@ -16,6 +16,7 @@ export interface NewOrder extends Order {
 /** 決済注文 */
 export interface StopOrder extends Order {
   type: 'stop'
+  lastPrice: number
 }
 
 const isNewOrder = (order: Order): order is NewOrder => order.type === 'new'

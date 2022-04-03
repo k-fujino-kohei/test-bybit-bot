@@ -9,7 +9,8 @@ import { AccountDataRepository } from '@/domains/repository/accountData'
 export class SimpleTrader extends BaseTrader {
   constructor (
     private marketRepository: MarketDataRepository,
-    private accountRepository: AccountDataRepository
+    private accountRepository: AccountDataRepository,
+    private currentDate: () => Date
   ) {
     super()
   }
@@ -42,18 +43,19 @@ export class SimpleTrader extends BaseTrader {
       side: order.side,
       orderType: 'Market',
       qty: stopPosition.freeQty,
+      price: order.lastPrice,
       timeInForce: 'GoodTillCancel',
       reduceOnly: true,
       closeOnTrigger: false
     })
-    console.log('すべてのポジションを解消しました')
+    console.log(`すべてのポジションを解消しました: qty: ${stopPosition.freeQty}`)
   }
 
   async strategy (): Promise<NewOrder | StopOrder | null> {
     // 1分足でロウソク足を１時間分取得
     const kline = await this.marketRepository.getKline({
       interval: 1,
-      from: getUnixTime(sub(new Date(), { minutes: 60 }))
+      from: getUnixTime(sub(this.currentDate(), { minutes: 60 }))
     })
 
     const { isFall, isRaise } = (() => {
@@ -99,9 +101,10 @@ export class SimpleTrader extends BaseTrader {
       }
     })()
 
+    const latestKline = kline[kline.length - 1]
+
     // 逆張り
     if (isFall) {
-      const latestKline = kline[kline.length - 1]
       return {
         type: 'new',
         side: 'Sell',
@@ -112,7 +115,8 @@ export class SimpleTrader extends BaseTrader {
     if (isRaise) {
       return {
         type: 'stop',
-        side: 'Sell'
+        side: 'Sell',
+        lastPrice: latestKline.close
       }
     }
 

@@ -12,7 +12,21 @@ export class AccountDataAPI implements AccountDataRepository {
     return resp.result
   }
 
-  async placeActiveOrder (params: { side: string; orderType: string; qty: number; price?: number | undefined; timeInForce: string; closeOnTrigger: boolean; reduceOnly: boolean; orderLinkId?: string | undefined; takeProfit?: number | undefined; stopLoss?: number | undefined; tpTriggerBy?: string | undefined; slTriggerBy?: string | undefined; positionIdx?: number | undefined; }): Promise<void> {
+  async placeActiveOrder (params: {
+      side: string;
+      orderType: string;
+      qty: number;
+      price?: number | undefined;
+      timeInForce: string;
+      closeOnTrigger: boolean;
+      reduceOnly: boolean;
+      orderLinkId?: string | undefined;
+      takeProfit?: number | undefined;
+      stopLoss?: number | undefined;
+      tpTriggerBy?: string | undefined;
+      slTriggerBy?: string | undefined;
+      positionIdx?: number | undefined;
+  }): Promise<void> {
     await this.api.private.linear.order.create.$post({ body: { ...params, symbol: this.symbol } })
   }
 
