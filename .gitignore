@@ -3,3 +3,5 @@ index.js
 .env
 service-account.json
 .serverless
+backtest_data
+backtest.js
