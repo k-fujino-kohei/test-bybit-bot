@@ -1,0 +1,10 @@
+services:
+  crawler:
+    build:
+      context: ./
+    volumes:
+      - node_cache:/node_modules
+    command: yarn crawl
+
+volumes:
+  node_cache:
