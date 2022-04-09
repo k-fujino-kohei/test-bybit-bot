@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@aspida/axios": "^1.8.0",
+    "@types/node-cron": "^3.0.1",
     "axios": "^0.26.0",
     "crypto-js": "^4.1.1",
     "csv": "^6.0.5",
@@ -36,7 +37,6 @@
     "@typescript-eslint/eslint-plugin": "^5.9.1",
     "@typescript-eslint/parser": "^5.9.1",
     "bybit-api": "^2.1.8",
-    "danfojs": "^1.0.4",
     "esbuild": "^0.14.11",
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",

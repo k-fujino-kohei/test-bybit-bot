@@ -1,7 +1,7 @@
 import * as dfd from 'danfojs'
-import { SimpleTrader } from './usecases/simpleTrader'
-import { CacheKline, MarketDataLocal } from './infrastructure/repository/marketDataLocal'
-import { AccountDataLocal, LocalAccountDataStore } from './infrastructure/repository/accountDataLocal'
+import { SimpleTrader } from '@/usecases/simpleTrader'
+import { CacheKline, MarketDataLocal } from '@/infrastructure/repository/marketDataLocal'
+import { AccountDataLocal, LocalAccountDataStore } from '@/infrastructure/repository/accountDataLocal'
 import { addMinutes, isAfter, add, Duration, format } from 'date-fns'
 
 interface DateParams {

@@ -1,10 +1,10 @@
-import { SimpleTrader } from './usecases/simpleTrader'
-import { MarketDataAPI } from './infrastructure/repository/marketData'
-import api from './infrastructure/api'
-import { AccountDataAPI } from './infrastructure/repository/accountData'
-import { config } from './config'
+import { SimpleTrader } from '@/usecases/simpleTrader'
+import { MarketDataAPI } from '@/infrastructure/repository/marketData'
+import api from '@/infrastructure/api'
+import { AccountDataAPI } from '@/infrastructure/repository/accountData'
+import { config } from '@/config'
 
-const _autoTrade = async () => {
+const trade = async () => {
   try {
     const { env } = config()
     const bybitClient = api({ key: env.API_KEY, secret: env.API_SECRET, useTestnet: true })
@@ -18,4 +18,4 @@ const _autoTrade = async () => {
   }
 }
 
-exports.autoTrade = _autoTrade
+trade().then()
