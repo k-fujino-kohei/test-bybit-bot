@@ -4,6 +4,19 @@ bybitのテスト口座のbot
 https://testnet.bybit.com/
 `API_KEY: MFaUn93Pa2dXTQm1aR`
 
+## GCEに接続する
+
+GCEに接続する
+``` sh
+ssh -i ~/.ssh/keys/bybit-api-gce -p 7130 KoheiFujino@34.83.145.156
+```
+
+sftpでファイルを転送する
+``` sh
+sftp -i ~/.ssh/keys/bybit-api-gce -P 7130 KoheiFujino@34.83.145.156
+put crawl.js
+```
+
 ## Usage
 
 ### バックテストを実行する

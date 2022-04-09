@@ -1,22 +1,8 @@
 import { SimpleTrader } from './usecases/simpleTrader'
-import dotenv from 'dotenv'
 import { MarketDataAPI } from './infrastructure/repository/marketData'
 import api from './infrastructure/api'
 import { AccountDataAPI } from './infrastructure/repository/accountData'
-
-const config = () => {
-  const env = (() => {
-    dotenv.config()
-    const env = process.env
-    return {
-      API_KEY: env.API_KEY!,
-      API_SECRET: env.API_SECRET!
-    }
-  })()
-  return {
-    env
-  }
-}
+import { config } from './config'
 
 const _autoTrade = async () => {
   try {

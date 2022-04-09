@@ -14,7 +14,9 @@
     "deploy": "yarn bundle && serverless deploy",
     "debug": "yarn bundle && node index.js",
     "test:bundle": "aspida && esbuild src/backtest.ts --bundle --outfile=backtest.js --platform=node --external:mock-aws-s3 --external:nock",
-    "backtest": "yarn test:bundle && node backtest.js"
+    "backtest": "yarn test:bundle && node backtest.js",
+    "crawl:bundle": "aspida && esbuild src/bin/crawl.ts --bundle --outfile=crawl.js --platform=node --external:mock-aws-s3 --external:nock",
+    "crawl": "yarn crawl:bundle && node crawl.js"
   },
   "dependencies": {
     "@aspida/axios": "^1.8.0",
@@ -23,12 +25,14 @@
     "csv": "^6.0.5",
     "date-fns": "^2.28.0",
     "dotenv": "^11.0.0",
+    "ringbufferjs": "^2.0.0",
     "snake-camel": "^1.0.8"
   },
   "devDependencies": {
     "@google-cloud/functions-framework": "^2.1.0",
     "@types/crypto-js": "^4.1.1",
     "@types/node": "^17.0.8",
+    "@types/ringbufferjs": "^1.1.0",
     "@typescript-eslint/eslint-plugin": "^5.9.1",
     "@typescript-eslint/parser": "^5.9.1",
     "bybit-api": "^2.1.8",
