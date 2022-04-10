@@ -10,9 +10,7 @@
     "lint:es": "eslint --ext \".ts\" --ignore-path .gitignore .",
     "fix": "yarn lint:es --fix",
     "bundle": "aspida && esbuild src/index.ts --bundle --outfile=index.js --minify --platform=node --external:mock-aws-s3 --external:nock",
-    "dev": "yarn bundle && npx functions-framework --source=index.js --target=autoTrade --signature-type=event",
-    "deploy": "yarn bundle && serverless deploy",
-    "debug": "yarn bundle && node index.js",
+    "local": "yarn bundle && node index.js",
     "test:bundle": "aspida && esbuild src/backtest.ts --bundle --outfile=backtest.js --platform=node --external:mock-aws-s3 --external:nock",
     "backtest": "yarn test:bundle && node backtest.js",
     "crawl:bundle": "aspida && esbuild src/bin/crawl.ts --bundle --outfile=crawl.js --platform=node --external:mock-aws-s3 --external:nock",
@@ -31,7 +29,6 @@
     "snake-camel": "^1.0.8"
   },
   "devDependencies": {
-    "@google-cloud/functions-framework": "^2.1.0",
     "@types/crypto-js": "^4.1.1",
     "@types/node": "^17.0.8",
     "@types/ringbufferjs": "^1.1.0",
@@ -45,8 +42,6 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.2.0",
     "node-cron": "^3.0.0",
-    "serverless": "^3.0.1",
-    "serverless-google-cloudfunctions": "^4.5.0",
     "typescript": "^4.5.4"
   }
 }
