@@ -1,6 +1,7 @@
 node_modules
 index.js
 .env
+.env.*
 service-account.json
 .serverless
 backtest_data

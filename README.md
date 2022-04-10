@@ -17,6 +17,24 @@ sftp -i ~/.ssh/keys/bybit-api-gce -P 7130 KoheiFujino@34.83.145.156
 put crawl.js
 ```
 
+## DB
+
+DBは[supabase](https://app.supabase.io/)を使用している
+
+DBのURL
+
+```
+# .env
+DB_URL=http://localhost:54321
+```
+
+ローカルDBを立ち上げる([ダッシュボード](http://localhost:54325))
+
+``` sh
+supabase start
+```
+
+
 ## Usage
 
 ### バックテストを実行する
