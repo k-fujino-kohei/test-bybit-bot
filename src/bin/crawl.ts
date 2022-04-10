@@ -1,14 +1,13 @@
 import { Crawler } from '@/crawler/crawler'
 import RingBuffer from 'ringbufferjs'
 import cron from 'node-cron'
-import { formatISO9075 } from 'date-fns'
+import { formatISO, formatISO9075 } from 'date-fns'
 import { BufferQueues, Liquidation, OIInfo, Trade } from '@/crawler/queue'
-import { config } from '@/config'
+import { config, Env } from '@/config'
+import { DataStore } from '@/crawler/db'
+import { LiquidationSchema, OISchema, TradeSchema, Values } from '@/crawler/schema'
 
-// クローラーのエントリーポイント
-
-const crawl = () => {
-  const { env } = config()
+const crawl = (env: Env, ongetData: (data: { oi: OIInfo[], trade: Trade[], liquidation: Liquidation[] }) => Promise<void>) => {
   const queue: BufferQueues = {
     oi: new RingBuffer<OIInfo>(100),
     trade: new RingBuffer<Trade>(300),
@@ -19,34 +18,50 @@ const crawl = () => {
 
   const eachSeconds = 5
   cron.schedule(`*/${eachSeconds} * * * * *`, () => {
-    console.log(formatISO9075(new Date()))
+    console.log(`will save at ${formatISO9075(new Date())}`)
     const oi = queue.oi.deqN(queue.oi.size())
-    if (oi.length > 0) {
-      // TODO: DBに保存する
-      console.log(' >>>>> Open Interest >>>>>')
-      oi.forEach((info) => {
-        console.log(info)
-      })
-    }
-
     const trade = queue.trade.deqN(queue.trade.size())
-    if (trade.length > 0) {
-      // TODO: DBに保存する
-      console.log(' >>>>> Trade >>>>>')
-      trade.forEach((info) => {
-        console.log(info)
-      })
-    }
-
     const liquidation = queue.liquidation.deqN(queue.liquidation.size())
-    if (liquidation.length > 0) {
-      // TODO: DBに保存する
-      console.log(' >>>>> Liquidation >>>>>')
-      liquidation.forEach((info) => {
-        console.log(info)
-      })
-    }
+    ongetData({ oi, trade, liquidation })
+      .then()
+      .catch((err) => console.error(err))
   })
 }
 
-crawl()
+const main = () => {
+  const { env } = config()
+
+  const db = new DataStore(env.DB_URL, env.DB_KEY)
+
+  crawl(env, async (data) => {
+    const oiValues: Values<OISchema> = data.oi.map(d => {
+      return {
+        value: d.oi,
+        timestamp: formatISO(d.timestamp)
+      }
+    })
+    await db.insert<OISchema>('oi', oiValues)
+
+    const tradeValues: Values<TradeSchema> = data.trade.map(d => {
+      return {
+        side: d.side,
+        price: d.price,
+        size: d.size,
+        timestamp: formatISO(d.timestamp)
+      }
+    })
+    await db.insert<TradeSchema>('trade', tradeValues)
+
+    const liqValues: Values<LiquidationSchema> = data.liquidation.map(d => {
+      return {
+        side: d.side,
+        price: d.price,
+        qty: d.qty,
+        timestamp: formatISO(d.timestamp)
+      }
+    })
+    await db.insert<LiquidationSchema>('liquidation', liqValues)
+  })
+}
+
+main()

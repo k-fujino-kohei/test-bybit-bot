@@ -6,3 +6,6 @@ service-account.json
 backtest_data
 backtest.js
 crawl.js
+# Supabase
+**/supabase/.branches
+**/supabase/.temp
