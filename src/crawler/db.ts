@@ -11,4 +11,8 @@ export class DataStore {
   async insert <T extends Schema> (table: Table<T>, values: Values<T>) {
     await this.supabase.from(table).insert(values)
   }
+
+  async rpc<T> (fn: string, params?: object): Promise<{ data: T[] | null, count: number | null }> {
+    return await this.supabase.rpc(fn, params)
+  }
 }
