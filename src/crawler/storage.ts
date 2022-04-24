@@ -1,8 +1,6 @@
-import tmp, { file } from 'tmp'
-import fs from 'fs/promises'
 import fssync from 'fs'
 import path from 'path'
-import { google } from 'googleapis'
+import { drive_v3, google } from 'googleapis'
 
 interface UploadResponse {
   id: string
@@ -11,20 +9,18 @@ interface UploadResponse {
 
 export class GoogleDrive {
   private readonly SERVICE_ACCOUNT_JSON_PATH = path.join(__dirname, 'service-account.json')
-  private auth: any
+  private drive: drive_v3.Drive
 
   constructor () {
-    this.auth = new google.auth.JWT({
+    const auth = new google.auth.JWT({
       keyFile: this.SERVICE_ACCOUNT_JSON_PATH,
       scopes: ['https://www.googleapis.com/auth/drive']
     })
+    this.drive = google.drive({ version: 'v3', auth })
   }
 
   async upload (file: { path: string, name: string }, uploadTo: string): Promise<UploadResponse> {
-    const drive = google.drive({ version: 'v3', auth: this.auth })
-    /** NOTE: `/summary/`のID */
-    // const summaryId = '1VP6fXLcvINKw2BfuwU0upvDlHM9rdxbE' as const
-    const res = await drive.files.create({
+    const res = await this.drive.files.create({
       resource: {
         name: file.name,
         parents: [uploadTo]
