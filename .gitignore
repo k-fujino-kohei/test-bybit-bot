@@ -8,6 +8,7 @@ backtest_data
 backtest.js
 crawl.js
 download.js
+function.js
 # Supabase
 **/supabase/.branches
 **/supabase/.temp

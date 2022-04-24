@@ -15,8 +15,10 @@
     "backtest": "yarn test:bundle && node backtest.js",
     "crawl:bundle": "aspida && esbuild src/bin/crawl.ts --bundle --outfile=crawl.js --platform=node --external:mock-aws-s3 --external:nock",
     "crawl": "yarn crawl:bundle && node crawl.js",
-    "download:bundle": "aspida && esbuild src/bin/downloadData.ts --bundle --outfile=download.js --platform=node --external:mock-aws-s3 --external:nock",
-    "download": "yarn download:bundle && node download.js"
+    "download:bundle:dev": "aspida && esbuild src/bin/downloadData.ts --bundle --outfile=function.js --define:process.env.NODE_ENV=\\\"development\\\" --platform=node --external:mock-aws-s3 --external:nock",
+    "download:bundle:prod": "aspida && esbuild src/bin/downloadData.ts --bundle --outfile=function.js --define:process.env.NODE_ENV=\\\"production\\\" --platform=node --external:mock-aws-s3 --external:nock",
+    "download": "yarn download:bundle:dev && serverless invoke local --function downloadData",
+    "download:deploy": "yarn download:bundle:prod && serverless deploy"
   },
   "dependencies": {
     "@aspida/axios": "^1.8.0",
@@ -47,6 +49,8 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.2.0",
     "node-cron": "^3.0.0",
+    "serverless": "^3.15.2",
+    "serverless-google-cloudfunctions": "^4.5.0",
     "typescript": "^4.5.4"
   }
 }

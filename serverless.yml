@@ -1,0 +1,27 @@
+service: test-bybit-bot
+
+provider:
+  name: google
+  runtime: nodejs14
+  region: asia-northeast1
+  project: "bybit-bot-339805"
+  credentials: ./cloudfunction_service-account.json
+
+plugins:
+  - serverless-google-cloudfunctions
+
+package:
+  exclude:
+    - "**"
+  include:
+    - function.js
+    - .env.prod
+    - service-account.json
+
+functions:
+  downloadData:
+    handler: downloadData
+    events:
+      - event:
+          eventType: providers/cloud.pubsub/eventTypes/topic.publish
+          resource: 'projects/${self:provider.project, ""}/topics/downloadDataCall'

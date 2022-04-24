@@ -2,9 +2,15 @@ import { config } from '@/config'
 import { DataStore } from '@/crawler/db'
 import downloadData from '@/crawler/downloadData'
 
-const { env } = config()
-const db = new DataStore(env.DB_URL, env.DB_KEY)
+const main = async () => {
+  const { env } = config()
+  const db = new DataStore(env.DB_URL, env.DB_KEY)
 
-downloadData(db, { to: new Date() })
-  .then()
-  .catch(err => console.error(err))
+  try {
+    await downloadData(db, { to: new Date() })
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+exports.downloadData = main

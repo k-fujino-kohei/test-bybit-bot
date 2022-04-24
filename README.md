@@ -4,6 +4,11 @@ bybitのテスト口座のbot
 https://testnet.bybit.com/
 `API_KEY: MFaUn93Pa2dXTQm1aR`
 
+## 環境変数
+開発環境の環境変数は`.env`に記述する。
+
+本番環境は`.env.prod`に記述すること。
+
 ## GCEに接続する
 
 GCEに接続する
@@ -34,6 +39,18 @@ DB_URL=http://localhost:54321
 supabase start
 ```
 
+## DBのデータをCSVに変換してGoogleDriveにアップロードする
+
+### ローカルで実行する
+``` sh
+yarn download
+```
+
+### CloudFunctionsにデプロイする
+
+``` sh
+yarn download:deploy
+```
 
 ## Usage
 
