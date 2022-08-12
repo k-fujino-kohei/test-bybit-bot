@@ -4,6 +4,8 @@ bybitのテスト口座のbot
 https://testnet.bybit.com/
 `API_KEY: MFaUn93Pa2dXTQm1aR`
 
+APIトークンは適宜変更すること
+
 ## 環境変数
 開発環境の環境変数は`.env`に記述する。
 
