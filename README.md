@@ -1,6 +1,10 @@
 # test-bybit-bot
 bybitのテスト口座のbot
 
+```
+サービスアカウントやAPIKeyなどの個人情報はサンプルなので実際にはリポジトリに含めないようにしてください
+```
+
 https://testnet.bybit.com/
 `API_KEY: MFaUn93Pa2dXTQm1aR`
 
